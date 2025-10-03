@@ -292,3 +292,18 @@ header .btnCont form button:active {
 .bookPages {
   align-self: end;
 }
+
+@media (max-width: 768px) {
+  .gridCont {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  .gridCont .bookCard {
+    width: 100%;
+  }
+}
+@media (max-width: 575px) {
+  .gridCont {
+    grid-template-columns: 1fr;
+  }
+}
