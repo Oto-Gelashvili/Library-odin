@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     this.readState = readState;
   }
 
+  // to manage  readState
+  Book.prototype.toggleRead = function () {
+    this.readState = !this.readState;
+  };
+
   function addBookToLibrary(title, author, pages, readState) {
     const newBook = new Book(title, author, pages, readState);
     myLibrary.push(newBook);
@@ -24,8 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   addBookToLibrary('The Hobbit', 'J.R.R. Tolkien', 295, true);
   addBookToLibrary('1984', 'George Orwell', 328, false);
-
-  console.log(myLibrary);
 
   // ========== FORM ==========
 
@@ -75,9 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pages = parseInt(form.querySelector('#pages').value.trim(), 10);
     const readState = form.querySelector('#readState').checked;
 
-    const newBook = addBookToLibrary(title, author, pages, readState);
-    console.log('New book added:', newBook);
-    console.log('Current library:', myLibrary);
+    addBookToLibrary(title, author, pages, readState);
+    renderLibrary();
 
     form.reset();
     form.classList.remove('active');
@@ -94,4 +96,59 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // rendering library in grid container
+  const gridCont = document.querySelector('.gridCont');
+
+  renderLibrary(); // here  working on hosting knowledge, even though we are calling function before its defined below, fucntions are fully hoisted and variables that function uses are defined before calling of function ntherfore it works, but if we had gridcont defined below this line it wouldnt work anymore
+
+  function renderLibrary() {
+    gridCont.innerHTML = myLibrary
+      .map(
+        (book, index) => `
+      <div class="bookCard"> 
+       <div class="bookCardHeader">
+          <div class="readStateCont">
+              <label class="custom-checkbox">
+                Read
+                <input 
+                  type="checkbox" 
+                  id="readState-${index}" 
+                  name="readState-${index}" 
+                  ${book.readState ? 'checked' : ''} 
+                  data-index="${index}"
+                />
+                <span class="checkmark"></span>
+              </label>
+          </div>
+            <span class="material-symbols-outlined closeBtn"> close </span>
+        </div>
+        <h3>${book.title}</h3>
+        <p>by ${book.author}</p>
+        <p class="bookPages">${book.pages} pages</p>
+       
+      </div>
+    `
+      )
+      .join('');
+
+    // change state of readStata
+    gridCont.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+      box.addEventListener('change', (e) => {
+        const i = e.target.dataset.index;
+        myLibrary[i].toggleRead();
+        renderLibrary();
+        console.log(myLibrary);
+      });
+    });
+
+    // Close button to remove book
+    gridCont.querySelectorAll('.closeBtn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const i = e.target.dataset.index;
+        myLibrary.splice(i, 1);
+        renderLibrary();
+      });
+    });
+  }
 });
